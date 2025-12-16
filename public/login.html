@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #0b1220; color: #e8eefc; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; position: relative; }
+    .logo { position: absolute; top: 40px; left: 40px; display: flex; align-items: center; z-index: 10; }
+    .logo-text { font-size: 32px; font-weight: bold; color: #ff8c00; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); margin-right: 15px; }
+    .logo-badge { background: #6a0dad; color: #fff; padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: 500; display: flex; align-items: center; }
+    .logo-badge::after { content: ''; width: 8px; height: 8px; background: #ff8c00; border-radius: 50%; margin-left: 8px; }
+    .card { width: 360px; background: #121a2b; border: 1px solid #1f2a44; border-radius: 10px; padding: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.25); }
+    h1 { margin: 0 0 16px; font-size: 22px; }
+    label { display: block; font-size: 13px; margin: 12px 0 6px; color: #b9c6e4; }
+    input { width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid #2a3a5f; background: #0f1626; color: #e8eefc; outline: none; }
+    input:focus { border-color: #4f7cff; }
+    .actions { margin-top: 18px; display: flex; gap: 10px; align-items: center; }
+    button { flex: 1; padding: 10px 14px; border-radius: 8px; border: none; background: #4f7cff; color: white; cursor: pointer; font-weight: 600; }
+    button:disabled { opacity: .6; cursor: not-allowed; }
+    .link { color: #9db2ff; text-decoration: none; font-size: 13px; }
+    .error { margin-top: 12px; color: #ff6b6b; font-size: 13px; min-height: 16px; }
+  </style>
+</head>
+<body>
+  <div class="logo">
+    <div class="logo-text">JP</div>
+    <div class="logo-badge">& CO</div>
+  </div>
+  <div class="card">
+    <h1>Admin Login</h1>
+    <form id="loginForm">
+      <label for="email">Email</label>
+      <input id="email" name="email" type="email" required />
+
+      <label for="password">Password</label>
+      <input id="password" name="password" type="password" required />
+
+      <div class="actions">
+        <button id="submitBtn" type="submit">Login</button>
+        <a class="link" href="/signup.html">Create account</a>
+      </div>
+      <div id="error" class="error"></div>
+      <div id="info" class="error" style="color:#8bc34a"></div>
+    </form>
+  </div>
+
+  <script>
+    const form = document.getElementById('loginForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const errorEl = document.getElementById('error');
+    const infoEl = document.getElementById('info');
+
+    // Show message if coming from verification redirect
+    const usp = new URLSearchParams(location.search);
+    if (usp.get('verified') === '1') {
+      infoEl.textContent = 'Email verified successfully. You can now log in.';
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      errorEl.textContent = '';
+      submitBtn.disabled = true;
+      try {
+        const payload = { email: form.email.value.trim(), password: form.password.value };
+        const res = await fetch('/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (!res.ok || !data.success) throw new Error(data.error || 'Login failed');
+        localStorage.setItem('jwt', data.token);
+        window.location.href = '/index.html';
+      } catch (err) {
+        errorEl.textContent = err.message || 'Something went wrong';
+      } finally {
+        submitBtn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

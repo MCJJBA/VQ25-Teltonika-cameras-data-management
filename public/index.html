@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Upload Image + Send AVL</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body { 
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+      background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+      color: #e0e0e0;
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+    
+    .header {
+      background: #000;
+      padding: 20px 0;
+      border-bottom: 3px solid #333;
+      margin-bottom: 30px;
+    }
+    
+    .logo {
+      display: flex;
+      align-items: center;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+    
+    .logo-text {
+      font-size: 32px;
+      font-weight: bold;
+      color: #ff8c00;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+      margin-right: 15px;
+    }
+    
+    .logo-badge {
+      background: #6a0dad;
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+    }
+    
+    .logo-badge::after {
+      content: '';
+      width: 8px;
+      height: 8px;
+      background: #ff8c00;
+      border-radius: 50%;
+      margin-left: 8px;
+    }
+    
+    .user-menu {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    
+    .logout-btn {
+      background: #dc3545;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+    
+    .logout-btn:hover {
+      background: #c82333;
+      transform: translateY(-1px);
+    }
+    
+    .main-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+    
+    h2 {
+      color: #fff;
+      font-size: 28px;
+      margin-bottom: 20px;
+      text-align: center;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    }
+    
+    .container { 
+      background: #2a2a2a; 
+      padding: 25px; 
+      border-radius: 12px; 
+      margin: 20px 0; 
+      border: 1px solid #444;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    }
+    
+    .realtime-data { 
+      background: linear-gradient(135deg, #1e3a1e 0%, #2d4a2d 100%); 
+      border-left: 4px solid #4caf50; 
+    }
+    
+    .data-item { 
+      background: #333; 
+      padding: 20px; 
+      margin: 15px 0; 
+      border-radius: 8px; 
+      box-shadow: 0 3px 10px rgba(0,0,0,0.4);
+      border: 1px solid #555;
+    }
+    
+    .status { 
+      padding: 8px 16px; 
+      border-radius: 25px; 
+      font-size: 12px; 
+      display: inline-block; 
+      font-weight: 500;
+    }
+    
+    .status.polling { 
+      background: linear-gradient(135deg, #2196f3, #1976d2); 
+      color: white; 
+    }
+    
+    .status.error { 
+      background: linear-gradient(135deg, #f44336, #d32f2f); 
+      color: white; 
+    }
+    
+    pre { 
+      background: #1a1a1a; 
+      color: #e0e0e0;
+      padding: 15px; 
+      border-radius: 8px; 
+      overflow-x: auto; 
+      font-size: 12px; 
+      border: 1px solid #444;
+    }
+    
+    .refresh-btn { 
+      background: linear-gradient(135deg, #4caf50, #45a049); 
+      color: white; 
+      border: none; 
+      padding: 10px 20px; 
+      border-radius: 6px; 
+      cursor: pointer; 
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+    
+    .refresh-btn:hover {
+      background: linear-gradient(135deg, #45a049, #3d8b40);
+      transform: translateY(-1px);
+    }
+    
+    .auto-refresh { 
+      color: #aaa; 
+      font-size: 12px; 
+    }
+    
+    input[type="file"] { 
+      padding: 12px; 
+      border: 2px dashed #666; 
+      border-radius: 8px; 
+      width: 100%; 
+      background: #333;
+      color: #e0e0e0;
+      transition: all 0.3s ease;
+    }
+    
+    input[type="file"]:hover { 
+      border-color: #4caf50; 
+      background: #3a3a3a;
+    }
+    
+    .file-info { 
+      font-size: 12px; 
+      color: #aaa; 
+      margin-top: 8px; 
+    }
+    
+    input[type="text"], textarea {
+      background: #333;
+      border: 1px solid #555;
+      color: #e0e0e0;
+      padding: 12px;
+      border-radius: 6px;
+      width: 100%;
+      font-family: inherit;
+    }
+    
+    input[type="text"]:focus, textarea:focus {
+      outline: none;
+      border-color: #4caf50;
+      box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
+    }
+    
+    button[type="submit"] {
+      background: linear-gradient(135deg, #ff8c00, #ff7f00);
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    button[type="submit"]:hover {
+      background: linear-gradient(135deg, #ff7f00, #ff6b00);
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(255, 140, 0, 0.4);
+    }
+    
+    label {
+      color: #e0e0e0;
+      font-weight: 500;
+      margin-bottom: 8px;
+      display: block;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    h3 {
+      color: #fff;
+      margin-bottom: 15px;
+      font-size: 18px;
+    }
+    
+    h4 {
+      color: #4caf50;
+      margin-bottom: 10px;
+    }
+    
+    strong {
+      color: #fff;
+    }
+    
+    .error-message {
+      background: #2d1b1b;
+      border: 1px solid #f44336;
+      color: #ffcdd2;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 15px 0;
+    }
+    
+    .success-message {
+      background: #1b2d1b;
+      border: 1px solid #4caf50;
+      color: #c8e6c9;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 15px 0;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header with Logo -->
+  <div class="header">
+    <div class="logo">
+      <div class="logo-text">JP</div>
+      <div class="logo-badge">& CO</div>
+      <div class="user-menu">
+        <button class="logout-btn" onclick="logout()">Logout</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="main-container">
+    <h2>Upload Image/Video + Send Packets</h2>
+
+  <!-- Polling Status -->
+  <div class="container">
+    <h3>🔄 Data Polling Status</h3>
+    <span id="pollingStatus" class="status polling">Polling every 10 seconds</span>
+    
+    <div class="auto-refresh">Last updated: <span id="lastUpdated">Never</span></div>
+  </div>
+
+  <!-- Upload Form -->
+  <div class="container">
+    <h3>📁 Upload Media + Send Packets</h3>
+    <form id="uploadForm" enctype="multipart/form-data">
+      <div class="form-group">
+        <label>Image or Video:</label>
+        <input type="file" name="image" accept="image/*,video/*" required />
+        <div class="file-info">Supported formats: Images (JPG, PNG, GIF, etc.) and Videos (MP4, AVI, MOV, etc.)</div>
+      </div>
+
+      <div class="form-group">
+        <label>IMEI Packet:</label>
+        <input type="text" name="imei" value="123456789012345" required />
+      </div>
+
+      <div class="form-group">
+        <label>AVL Packet (hex string):</label>
+        <textarea name="avl" placeholder="Enter AVL packet in hex" rows="5"></textarea>
+      </div>
+
+      <button type="submit">Upload & Send</button>
+    </form>
+
+    <pre id="response"></pre>
+  </div>
+
+  <!-- AVL Data from Database -->
+  <div class="container realtime-data">
+    <h3>📊 Latest AVL Data from Database (camera_files table)</h3>
+    <div id="avlDataContainer">
+      <p>Loading AVL data...</p>
+    </div>
+  </div>
+
+  <script>
+    // JWT Token Management
+    function getAuthToken() {
+      return localStorage.getItem('jwt');
+    }
+
+    function setAuthToken(token) {
+      if (token) {
+        localStorage.setItem('jwt', token);
+      } else {
+        localStorage.removeItem('jwt');
+      }
+    }
+
+    function logout() {
+      setAuthToken(null);
+      window.location.href = '/login.html';
+    }
+
+    function getAuthHeaders() {
+      const token = getAuthToken();
+      const headers = {};
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+      return headers;
+    }
+
+    // Check authentication status on page load
+    async function checkAuth() {
+      const token = getAuthToken();
+      if (!token) {
+        window.location.href = '/login.html';
+        return false;
+      }
+
+      try {
+        const res = await fetch('/auth/me', {
+          headers: getAuthHeaders()
+        });
+        
+        if (!res.ok) {
+          if (res.status === 401 || res.status === 403) {
+            setAuthToken(null);
+            window.location.href = '/login.html';
+            return false;
+          }
+        }
+        return true;
+      } catch (error) {
+        console.error('Auth check failed:', error);
+        setAuthToken(null);
+        window.location.href = '/login.html';
+        return false;
+      }
+    }
+
+    // DOM elements
+    const form = document.getElementById('uploadForm');
+    const responseEl = document.getElementById('response');
+    const pollingStatus = document.getElementById('pollingStatus');
+    const lastUpdated = document.getElementById('lastUpdated');
+    const avlDataContainer = document.getElementById('avlDataContainer');
+    const fileInput = document.querySelector('input[type="file"]');
+    
+    // Show file info when selected
+    fileInput.addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const fileInfo = document.querySelector('.file-info');
+        fileInfo.innerHTML = `Selected: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB) - ${file.type}`;
+      }
+    });
+    
+    // Load AVL data from database
+    async function loadAVLData() {
+      try {
+        pollingStatus.textContent = 'Loading...';
+        pollingStatus.className = 'status polling';
+        
+        // Fetch from your existing camera_files table
+         const response = await fetch('http://localhost:3001/api/latest-avl?limit=5');
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error ${response.status}`);
+        }
+        
+        const data = await response.json();
+        displayAVLData(data);
+        
+        pollingStatus.textContent = 'Polling every 10 seconds';
+        lastUpdated.textContent = new Date().toLocaleString();
+        
+      } catch (error) {
+        console.error('Error loading AVL data:', error);
+        pollingStatus.textContent = 'Error loading data';
+        pollingStatus.className = 'status error';
+        
+        avlDataContainer.innerHTML = `
+          <div class="data-item" style="background: #ffebee; border-left: 4px solid #f44336;">
+            <p><strong>Error:</strong> ${error.message}</p>
+            <p>Make sure serverConsumer.js is running on port 3000</p>
+          </div>
+        `;
+      }
+    }
+    
+    // Display AVL data from camera_files table
+    function displayAVLData(dataArray) {
+      if (!dataArray || dataArray.length === 0) {
+        avlDataContainer.innerHTML = '<p>No AVL data found in camera_files table yet.</p>';
+        return;
+      }
+      
+      const dataHtml = dataArray.map(item => {
+        const timestamp = new Date(item.timestamp).toLocaleString();
+        const created = new Date(item.created_at).toLocaleString();
+        
+        return `
+          <div class="data-item">
+            <h4> Camera ${item.camera_id} - ${timestamp}</h4>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+              <div>
+                <p><strong>📍 GPS:</strong> ${item.lat}, ${item.lon}</p>
+                <p><strong>⚡ Speed:</strong> ${(item.speed * 0.036).toFixed(1)} km/h</p>
+                <p><strong>📏 Altitude:</strong> ${item.altitude}m</p>
+                <p><strong>🧭 Angle:</strong> ${item.angle}°</p>
+              </div>
+              <div>
+                <p><strong>🛰️ Satellites:</strong> ${item.satellites}</p>
+                <p><strong>📁 File:</strong> ${item.file_path || 'N/A'}</p>
+                <p><strong>🔗 Upload Ref:</strong> ${item.upload_ref || 'N/A'}</p>
+                <p><strong>📅 Created:</strong>  ${timestamp}</p>
+              </div>
+            </div>
+            <details>
+              <summary>Raw Database Record</summary>
+              <pre>${JSON.stringify(item, null, 2)}</pre>
+            </details>
+          </div>
+        `;
+      }).join('');
+      
+      avlDataContainer.innerHTML = dataHtml;
+    }
+    
+    // Form submission for upload
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      // Check auth before submitting (upload requires auth)
+      const token = getAuthToken();
+      if (!token) {
+        window.location.href = '/login.html';
+        return;
+      }
+
+      const formData = new FormData(form);
+
+      try {
+         const res = await fetch('http://localhost:3000/upload-packets', {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: formData
+        });
+
+        if (res.status === 401 || res.status === 403) {
+          setAuthToken(null);
+          window.location.href = '/login.html';
+          return;
+        }
+
+        if (!res.ok) throw new Error(`HTTP error ${res.status}`);
+        const data = await res.json();
+        
+        // Display a more user-friendly response
+        let responseText = `✅ Upload successful!\n`;
+        if (data.uploaded) {
+          responseText += `📁 File: ${data.uploaded}\n`;
+          responseText += `📋 Type: ${data.fileType || 'Unknown'}\n`;
+        }
+        if (data.imeiSent) {
+          responseText += `📡 IMEI: ${data.imeiSent}\n`;
+        }
+        if (data.avlSent) {
+          responseText += `📊 AVL: ${data.avlSent.substring(0, 20)}...\n`;
+        }
+        
+        responseEl.innerText = responseText;
+        
+        // Reload AVL data after successful upload
+        setTimeout(() => {
+          loadAVLData();
+        }, 2000); // Wait 2 seconds for data to be processed
+        
+      } catch (err) {
+        responseEl.innerText = `Error: ${err.message}`;
+      }
+    });
+    
+    // Initialize: Check auth first, then load data
+    (async () => {
+      const isAuthenticated = await checkAuth();
+      if (isAuthenticated) {
+        // Auto-refresh every 10 seconds
+        setInterval(loadAVLData, 10000);
+        
+        // Initial load
+        loadAVLData();
+      }
+    })();
+  </script>
+  </div>
+</body>
+</html>
