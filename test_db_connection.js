@@ -3,24 +3,24 @@ const mysql = require('mysql2');
 const bcrypt = require('bcryptjs');
 const dbConfig = require('./dbConfig');
 
-console.log('🔍 Test de connexion à la base de données...');
+console.log(' Test de connexion à la base de données...');
 console.log('Configuration:', { ...dbConfig, password: '***' });
 
 const db = mysql.createConnection(dbConfig);
 
 db.connect((err) => {
   if (err) {
-    console.error('❌ Erreur de connexion:', err);
+    console.error(' Erreur de connexion:', err);
     process.exit(1);
   }
   
-  console.log('✅ Connecté à MySQL');
+  console.log(' Connecté à MySQL');
   
   // Vérifier la structure de la table
-  console.log('\n📊 Structure de la table Admin:');
+  console.log('\n Structure de la table Admin:');
   db.query('DESCRIBE Admin', (err, results) => {
     if (err) {
-      console.error('❌ Erreur DESCRIBE:', err);
+      console.error(' Erreur DESCRIBE:', err);
       db.end();
       return;
     }
@@ -30,13 +30,13 @@ db.connect((err) => {
     });
     
     // Tester l'insertion
-    console.log('\n🧪 Test d\'insertion...');
+    console.log('\n Test d\'insertion...');
     const testEmail = 'test' + Date.now() + '@example.com';
     const testPassword = 'test123';
     
     bcrypt.hash(testPassword, 10, (hashErr, hash) => {
       if (hashErr) {
-        console.error('❌ Erreur de hash:', hashErr);
+        console.error(' Erreur de hash:', hashErr);
         db.end();
         return;
       }
