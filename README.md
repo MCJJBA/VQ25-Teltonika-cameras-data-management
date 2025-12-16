@@ -89,7 +89,7 @@ const dbConfig = {
   host: "localhost",
   user: "root",
   password: "password",
-  database: "camera_upload_db"
+  database: "cameras_db"
 };
 
 ```
